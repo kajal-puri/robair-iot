@@ -104,6 +104,10 @@ void update() {
             ROS_INFO("(decision_node) /rotation_to_do: %f", rotation_to_do*180/M_PI);
             std_msgs::Float32 msg_rotation_to_do;
             //to complete
+              msg_rotation_to_do.data = rotation_to_do;
+              pub_rotation_to_do.publish(msg_rotation_to_do);
+              state = 2;
+
 
         }
         else {
@@ -126,6 +130,9 @@ void update() {
         ROS_INFO("(decision_node) /translation_to_do: %f", translation_to_do);
         std_msgs::Float32 msg_translation_to_do;
         //to complete
+        msg_translation_to_do.data = translation_to_do;
+        pub_translation_to_do.publish(msg_translation_to_do);
+        state = 3;
     }
 
     //we receive an ack from translation_action_node. So, we send an ack to the moving_persons_detector_node
@@ -138,7 +145,10 @@ void update() {
         geometry_msgs::Point msg_goal_reached;
         ROS_INFO("(decision_node) /goal_reached (%f, %f)", msg_goal_reached.x, msg_goal_reached.y);
         //to complete
-
+        msg_goal_reached.x = goal_reached.x;
+        msg_goal_reached.y = goal_reached.y;
+        pub_goal_reached.publish(msg_goal_reached);
+        state = 1;
         ROS_INFO(" ");
         ROS_INFO("(decision_node) waiting for a /goal_to_reach");
     }
