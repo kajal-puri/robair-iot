@@ -29,7 +29,7 @@ private:
     ros::NodeHandle n;
 
     ros::Subscriber sub_scan;
-    ros::Subscriber sub_robot_moving;
+    //ros::Subscriber sub_robot_moving;
 
     ros::Publisher pub_moving_persons_detector;
     ros::Publisher pub_moving_persons_detector_marker;
@@ -70,30 +70,30 @@ private:
     std_msgs::ColorRGBA colors[2000];
 
     //to check if the robot is moving or not
-    bool previous_robot_moving;
-    bool current_robot_moving;
+    //bool previous_robot_moving;
+    //bool current_robot_moving;
 
     bool init_laser;//to check if new data of laser is available or not
     bool init_robot;//to check if new data of robot_moving is available or not
 
     bool display_laser;
-    bool display_robot;
+    //bool display_robot;
 
 public:
 
 moving_persons_detector() {
 
     sub_scan = n.subscribe("scan", 1, &moving_persons_detector::scanCallback, this);
-    sub_robot_moving = n.subscribe("robot_moving", 1, &moving_persons_detector::robot_movingCallback, this);
+    //sub_robot_moving = n.subscribe("robot_moving", 1, &moving_persons_detector::robot_movingCallback, this);
 
     pub_moving_persons_detector_marker = n.advertise<visualization_msgs::Marker>("moving_person_detector", 1); // Preparing a topic to publish our results. This will be used by the visualization tool rviz
     pub_moving_persons_detector = n.advertise<geometry_msgs::Point>("goal_to_reach", 1);     // Preparing a topic to publish the goal to reach.
 
-    current_robot_moving = true;
+    //current_robot_moving = true;
     init_laser = false;
-    init_robot = false;
+    //init_robot = false;
     display_laser = false;
-    display_robot = false;
+    //display_robot = false;
 
     //INFINTE LOOP TO COLLECT LASER DATA AND PROCESS THEM
     ros::Rate r(10);// this node will run at 10hz
@@ -111,21 +111,22 @@ moving_persons_detector() {
 void update() {
 
     // we wait for new data of the laser and of the robot_moving_node to perform laser processing
-    if ( init_laser && init_robot ) {
+    //if ( init_laser && init_robot )
+    if (init_laser) {
         nb_pts = 0;
 
         ROS_INFO("\n");
         ROS_INFO("New data of laser received");
-        ROS_INFO("New data of robot_moving received");
+        //ROS_INFO("New data of robot_moving received");
 
         nb_pts = 0;
         //if the robot is not moving then we can perform moving persons detection
-        if ( !current_robot_moving ) {
+        /*if ( !current_robot_moving ) {
 
             ROS_INFO("robot is not moving");
                 // if the robot was moving previously and now it is not moving now then we store the background
-            if ( previous_robot_moving && !current_robot_moving )
-                store_background();
+            if ( previous_robot_moving && !current_robot_moving )*/
+            store_background();
 
             //we search for moving persons in 4 steps
             detect_motion();//to classify each hit of the laser as dynamic or not
@@ -139,9 +140,8 @@ void update() {
             //to publish the goal_to_reach
             if ( nb_moving_persons_detected )
                 pub_moving_persons_detector.publish(goal_to_reach);
-        }
         else
-            ROS_INFO("robot is moving");
+            ROS_INFO("Laser  data is receiving");
     }
     else {
         if ( !display_laser && !init_laser ) {
@@ -152,14 +152,14 @@ void update() {
             ROS_INFO("laser data are ok");
             display_laser = false;
         }
-        if ( !display_robot && !init_robot ) {
+        /*if ( !display_robot && !init_robot ) {
             ROS_INFO("wait for robot_moving_node");
             display_robot = true;
         }
         if ( display_robot && init_robot ) {
             ROS_INFO("robot_moving_node is ok");
             display_robot = true;
-        }
+        }*/
     }
 
 }// update
@@ -441,13 +441,13 @@ void scanCallback(const sensor_msgs::LaserScan::ConstPtr& scan) {
 
 }//scanCallback
 
-void robot_movingCallback(const std_msgs::Bool::ConstPtr& state) {
+/*void robot_movingCallback(const std_msgs::Bool::ConstPtr& state) {
 
     init_robot = true;
     previous_robot_moving = current_robot_moving;
     current_robot_moving = state->data;
 
-}//robot_movingCallback
+}//robot_movingCallback*/
 
 // Distance between two points
 float distancePoints(geometry_msgs::Point pa, geometry_msgs::Point pb) {
